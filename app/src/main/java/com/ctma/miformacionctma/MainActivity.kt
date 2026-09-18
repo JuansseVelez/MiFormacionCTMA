@@ -16,31 +16,50 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ctma.miformacionctma.data.ActividadRepositoryImpl
+import com.ctma.miformacionctma.domain.ActividadFormativa
+import com.ctma.miformacionctma.domain.Prioridad
 import com.ctma.miformacionctma.ui.theme.MiFormacionCTMATheme
 
 class MainActivity : ComponentActivity() {
+
+    private val repository = ActividadRepositoryImpl()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        repository.agregarActividad(
+            ActividadFormativa(
+                id = 1L,
+                titulo = "Taller: Primer proyecto Android",
+                descripcion = "Construcción del modelo y repositorio",
+                progreso = 100,
+                diasRestantes = 0,
+                prioridad = Prioridad.ALTA
+            )
+        )
+
         enableEdgeToEdge()
         setContent {
             MiFormacionCTMATheme {
-               PantallaInicio()
+                val actividades = repository.obtenerActividades()
+                val proximaActividad = actividades.firstOrNull()
+                PantallaInicio(actividad = proximaActividad)
             }
         }
     }
 }
 
 @Composable
-fun PantallaInicio(nombre: String = "Aprendiz"){
+fun PantallaInicio(nombre: String = "Aprendiz", actividad: ActividadFormativa? = null) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
-    ){
+    ) {
         Text(
             text = "Mi Formación CTMA",
             style = MaterialTheme.typography.headlineMedium
@@ -68,9 +87,15 @@ fun PantallaInicio(nombre: String = "Aprendiz"){
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "Taller: Primer proyecto Android")
-                Text(text = "Fecha límite: 20 de agosto")
-                Text(text = "Estado: Realizado")
+
+                if (actividad != null) {
+                    Text(text = "Taller: ${actividad.titulo}")
+                    Text(text = "Días restantes: ${actividad.diasRestantes}")
+                    Text(text = "Prioridad: ${actividad.prioridad}")
+                    Text(text = "Progreso: ${actividad.progreso}%")
+                } else {
+                    Text(text = "No hay actividades registradas")
+                }
             }
         }
     }
@@ -78,8 +103,17 @@ fun PantallaInicio(nombre: String = "Aprendiz"){
 
 @Preview(showBackground = true)
 @Composable
-fun PantallaInicioPreview(){
-    MiFormacionCTMATheme{
-        PantallaInicio()
+fun PantallaInicioPreview() {
+    MiFormacionCTMATheme {
+        PantallaInicio(
+            actividad = ActividadFormativa(
+                id = 1L,
+                titulo = "Taller: Primer proyecto Android",
+                descripcion = "Vista previa",
+                progreso = 50,
+                diasRestantes = 3,
+                prioridad = Prioridad.MEDIA
+            )
+        )
     }
 }
