@@ -4,23 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.ctma.miformacionctma.data.ActividadRepositoryImpl
 import com.ctma.miformacionctma.domain.ActividadFormativa
 import com.ctma.miformacionctma.domain.Prioridad
+import com.ctma.miformacionctma.ui.screens.PantallaActividades
 import com.ctma.miformacionctma.ui.theme.MiFormacionCTMATheme
 
 class MainActivity : ComponentActivity() {
@@ -30,90 +17,34 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        repository.agregarActividad(
-            ActividadFormativa(
-                id = 1L,
-                titulo = "Taller: Primer proyecto Android",
-                descripcion = "Construcción del modelo y repositorio",
-                progreso = 100,
-                diasRestantes = 0,
-                prioridad = Prioridad.ALTA
-            )
-        )
+        // Cargar datos de prueba (10 actividades para validar LazyColumn)
+        cargarDatosPrueba()
 
         enableEdgeToEdge()
         setContent {
             MiFormacionCTMATheme {
-                val actividades = repository.obtenerActividades()
-                val proximaActividad = actividades.firstOrNull()
-                PantallaInicio(actividad = proximaActividad)
+                val listaActividades = repository.obtenerActividades()
+                PantallaActividades(actividades = listaActividades)
             }
         }
     }
-}
 
-@Composable
-fun PantallaInicio(nombre: String = "Aprendiz", actividad: ActividadFormativa? = null) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Mi Formación CTMA",
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-        Text(
-            text = "Hola, $nombre"
-        )
-        Text(
-            text = "Aquí organizarás actividades y evidencias"
+    private fun cargarDatosPrueba() {
+        val actividadesDePrueba = listOf(
+            ActividadFormativa(1L, "Guía 1: Configuración de Entorno", "Instalación de Android Studio y Git", 100, 0, Prioridad.ALTA),
+            ActividadFormativa(2L, "Guía 2: Sintaxis de Kotlin", "Uso de data classes y enum classes", 100, 0, Prioridad.ALTA),
+            ActividadFormativa(3L, "Guía 3: Jetpack Compose", "Creación de tarjetas y listas perezosas", 60, 2, Prioridad.ALTA),
+            ActividadFormativa(4L, "Taller de Git y GitHub", "Flujo de trabajo con ramas y Pull Requests", 90, 1, Prioridad.MEDIA),
+            ActividadFormativa(5L, "Revisión de Accesibilidad", "Validación de lectores de pantalla y fuentes", 20, 5, Prioridad.BAJA),
+            ActividadFormativa(6L, "Diseño Adaptable M3", "Ajuste de interfaces para pantallas anchas", 0, 7, Prioridad.MEDIA),
+            ActividadFormativa(7L, "Pruebas Unitarias Kotlin", "Validación de reglas de negocio en domain", 10, 8, Prioridad.BAJA),
+            ActividadFormativa(8L, "Inyección de Dependencias", "Configuración básica con Hilt/Koin", 0, 10, Prioridad.MEDIA),
+            ActividadFormativa(9L, "Persistencia con Room", "Creación de base de datos local SQLite", 0, 12, Prioridad.ALTA),
+            ActividadFormativa(10L, "Consumo de API Rest", "Integración con Retrofit para datos remotos", 0, 15, Prioridad.ALTA)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Próximo compromiso formativo",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                if (actividad != null) {
-                    Text(text = "Taller: ${actividad.titulo}")
-                    Text(text = "Días restantes: ${actividad.diasRestantes}")
-                    Text(text = "Prioridad: ${actividad.prioridad}")
-                    Text(text = "Progreso: ${actividad.progreso}%")
-                } else {
-                    Text(text = "No hay actividades registradas")
-                }
-            }
+        actividadesDePrueba.forEach { actividad ->
+            repository.agregarActividad(actividad)
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PantallaInicioPreview() {
-    MiFormacionCTMATheme {
-        PantallaInicio(
-            actividad = ActividadFormativa(
-                id = 1L,
-                titulo = "Taller: Primer proyecto Android",
-                descripcion = "Vista previa",
-                progreso = 50,
-                diasRestantes = 3,
-                prioridad = Prioridad.MEDIA
-            )
-        )
     }
 }
