@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "c45ef015434312345678901234567891",
+    "entities": [
+      {
+        "tableName": "ActividadEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `competenciaId` INTEGER, `titulo` TEXT NOT NULL, `descripcion` TEXT, `progreso` INTEGER NOT NULL, `fechaLimiteMillis` INTEGER NOT NULL, `prioridad` TEXT NOT NULL, `completada` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`competenciaId`) REFERENCES `CompetenciaEntity`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          { "fieldPath": "id", "columnName": "id", "affinity": "INTEGER", "notNull": true },
+          { "fieldPath": "competenciaId", "columnName": "competenciaId", "affinity": "INTEGER", "notNull": false },
+          { "fieldPath": "titulo", "columnName": "titulo", "affinity": "TEXT", "notNull": true },
+          { "fieldPath": "descripcion", "columnName": "descripcion", "affinity": "TEXT", "notNull": false },
+          { "fieldPath": "progreso", "columnName": "progreso", "affinity": "INTEGER", "notNull": true },
+          { "fieldPath": "fechaLimiteMillis", "columnName": "fechaLimiteMillis", "affinity": "INTEGER", "notNull": true },
+          { "fieldPath": "prioridad", "columnName": "prioridad", "affinity": "TEXT", "notNull": true },
+          { "fieldPath": "completada", "columnName": "completada", "affinity": "INTEGER", "notNull": true, "defaultValue": "0" }
+        ],
+        "primaryKey": { "columnNames": ["id"], "autoGenerate": true },
+        "indices": [{ "name": "index_ActividadEntity_competenciaId", "unique": false, "columnNames": ["competenciaId"] }],
+        "foreignKeys": [{ "table": "CompetenciaEntity", "onDelete": "SET NULL", "onUpdate": "NO ACTION", "columns": ["competenciaId"], "referencedColumns": ["id"] }]
+      },
+      {
+        "tableName": "CompetenciaEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `codigo` TEXT NOT NULL, `descripcion` TEXT NOT NULL)",
+        "fields": [
+          { "fieldPath": "id", "columnName": "id", "affinity": "INTEGER", "notNull": true },
+          { "fieldPath": "codigo", "columnName": "codigo", "affinity": "TEXT", "notNull": true },
+          { "fieldPath": "descripcion", "columnName": "descripcion", "affinity": "TEXT", "notNull": true }
+        ],
+        "primaryKey": { "columnNames": ["id"], "autoGenerate": true },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": ["CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)", "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c45ef015434312345678901234567891')"]
+  }
+}

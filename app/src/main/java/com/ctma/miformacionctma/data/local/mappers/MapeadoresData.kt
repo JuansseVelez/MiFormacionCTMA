@@ -16,13 +16,13 @@ fun ActividadConCompetencia.toDomain(): ActividadFormativa {
     
     val prioridadEnum = try {
         Prioridad.valueOf(actividad.prioridad)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         Prioridad.BAJA
     }
 
     val fechaStr = try {
         sdf.format(Date(actividad.fechaLimiteMillis))
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
 
@@ -33,7 +33,7 @@ fun ActividadConCompetencia.toDomain(): ActividadFormativa {
         progreso = actividad.progreso,
         diasRestantes = dias,
         prioridad = prioridadEnum,
-        fechaLimite = fechaStr
+        fechaLimite = fechaStr,
     )
 }
 
@@ -41,7 +41,7 @@ fun ActividadFormativa.toEntity(competenciaId: Long? = null, completada: Boolean
     val fechaMillis = try {
         fechaLimite?.let { sdf.parse(it)?.time } 
             ?: (System.currentTimeMillis() + TimeUnit.DAYS.toMillis(diasRestantes.toLong()))
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         System.currentTimeMillis() + TimeUnit.DAYS.toMillis(diasRestantes.toLong())
     }
 
