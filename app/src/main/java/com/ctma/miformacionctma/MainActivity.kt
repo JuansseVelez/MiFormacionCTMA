@@ -42,18 +42,22 @@ class MainActivity : ComponentActivity() {
             MiFormacionCTMATheme {
                 val navController = rememberNavController()
                 val actividades by actividadesViewModel.actividades.collectAsState()
+                val sincronizacionState by actividadesViewModel.sincronizacionState.collectAsState()
 
                 NavHost(navController = navController, startDestination = Destino.Lista.ruta) {
                     composable(Destino.Lista.ruta) {
                         PantallaActividades(
                             actividades = actividades,
+                            sincronizacionState = sincronizacionState,
                             onActividadClick = { id ->
                                 navController.navigate(Destino.Detalle.crearRuta(id))
                             },
                             onAgregarClick = {
                                 navController.navigate(Destino.Crear.ruta)
                             },
-                            onSincronizar = { /* Simulado */ }
+                            onSincronizar = {
+                                actividadesViewModel.sincronizar()
+                            }
                         )
                     }
 

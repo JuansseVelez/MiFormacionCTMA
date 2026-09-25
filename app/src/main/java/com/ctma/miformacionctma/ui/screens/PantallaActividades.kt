@@ -23,10 +23,11 @@ import com.ctma.miformacionctma.ui.theme.MiFormacionCTMATheme
 @Composable
 fun PantallaActividades(
     actividades: List<ActividadFormativa>,
+    sincronizacionState: SincronizacionUiState = SincronizacionUiState(),
     onActividadClick: (Long) -> Unit,
     onAgregarClick: () -> Unit,
     onSincronizar: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
@@ -57,12 +58,43 @@ fun PantallaActividades(
                     .padding(horizontal = Dimens.PaddingLarge)
                     .widthIn(max = Dimens.MaxContentWidth)
             ) {
+                if (sincronizacionState.estaSincronizando) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+
                 Spacer(modifier = Modifier.height(Dimens.SpacingBetweenCards))
-                Text(
-                    text = "Resumen de Compromisos",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Resumen de Compromisos",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    TextButton(onClick = onSincronizar, enabled = !sincronizacionState.estaSincronizando) {
+                        Text(if (sincronizacionState.estaSincronizando) "Sincronizando..." else "Actualizar")
+                    }
+                }
+
+                sincronizacionState.errorMensaje?.let { error ->
+                    Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+                    Text(
+                        text = "Aviso: $error (Mostrando caché local)",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
+                sincronizacionState.ultimaSincronizacion?.let { hora ->
+                    Text(
+                        text = "Última sincronización: $hora",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
                 if (actividades.isEmpty()) {
@@ -78,8 +110,8 @@ fun PantallaActividades(
                                 textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
-                            Button(onClick = onSincronizar) {
-                                Text("Sincronizar contenido")
+                            Button(onClick = onSincronizar, enabled = !sincronizacionState.estaSincronizando) {
+                                Text("Sincronizar con Servidor")
                             }
                         }
                     }
@@ -90,7 +122,7 @@ fun PantallaActividades(
                     ) {
                         items(
                             items = actividades,
-                            key = { actividad -> actividad.id }
+                            key = { actividad -> actividad.id },
                         ) { actividad ->
                             TarjetaActividad(
                                 actividad = actividad,
@@ -114,6 +146,7 @@ fun PantallaActividadesPreview() {
                 ActividadFormativa(2L, "Guía 2: Repositorio", "Persistencia simulada en memoria", 80, 1, Prioridad.MEDIA),
                 ActividadFormativa(3L, "Guía 3: Jetpack Compose", "Creación de vistas accesibles", 30, 4, Prioridad.ALTA)
             ),
+            sincronizacionState = SincronizacionUiState(),
             onActividadClick = {},
             onAgregarClick = {},
             onSincronizar = {}
