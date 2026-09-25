@@ -23,13 +23,13 @@ import java.util.*
 fun PantallaCrearActividad(
     estaGuardando: Boolean,
     onBack: () -> Unit,
-    onGuardar: (titulo: String, desc: String, fecha: String, prioridad: Prioridad, progreso: Int) -> Unit
+    onGuardar: (titulo: String, desc: String, fecha: String, prioridad: Prioridad, progreso: Int) -> Unit,
 ) {
     var titulo by rememberSaveable { mutableStateOf("") }
     var descripcion by rememberSaveable { mutableStateOf("") }
     var fecha by rememberSaveable { mutableStateOf("") }
     var prioridad by rememberSaveable { mutableStateOf(Prioridad.BAJA) }
-    var progreso by rememberSaveable { mutableStateOf(0f) }
+    var progreso by rememberSaveable { mutableFloatStateOf(0f) }
 
     // Estados de interacción (para no mostrar errores al inicio)
     var tituloTouched by rememberSaveable { mutableStateOf(false) }
@@ -69,7 +69,7 @@ fun PantallaCrearActividad(
                         },
                         label = { Text("Título *") },
                         modifier = Modifier.fillMaxWidth(),
-                        isError = tituloTouched && uiState.errorTitulo != null,
+                        isError = (tituloTouched && uiState.errorTitulo != null),
                         supportingText = { 
                             if (tituloTouched) {
                                 uiState.errorTitulo?.let { Text(it) }
@@ -199,11 +199,11 @@ private fun validarFormulario(
         if (parsedDate != null && parsedDate.before(today)) {
             "La fecha no puede ser anterior a hoy"
         } else null
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         if (fecha.isNotBlank()) "Formato inválido (AAAA-MM-DD)" else "La fecha es obligatoria"
     }
 
-    val errorProgreso = if (progreso < 0 || progreso > 100) "Rango: 0-100" else null
+    val errorProgreso = if (progreso !in 0..100) "Rango: 0-100" else null
 
     val puedeGuardar = errorTitulo == null && errorFecha == null && 
                        errorDescripcion == null && errorProgreso == null &&
