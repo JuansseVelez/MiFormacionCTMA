@@ -1,14 +1,14 @@
-# Mi Formación CTMA — Guía 08: Servicios Web REST, Caché y Resiliencia
+# Mi Formación CTMA — Guía 09: Capacidades del Dispositivo y Seguridad
 
 ## Descripción del Incremento
-En este incremento de la Guía 8 se integró la comunicación con servicios web mediante **Retrofit** y **OkHttp**, implementando una estrategia **Offline-First** donde Room se mantiene como la única fuente de verdad y se garantiza que los fallos de red nunca corrompan ni vacíen el caché local.
+En este incremento de la Guía 9 se evolucionó la aplicación integrando el soporte para evidencia fotográfica de compromisos mediante el Photo Picker nativo del sistema y la cámara, asegurando un almacenamiento local ligero en Room, permisos bajo el principio de mínimo privilegio y resiliencia de red HTTPS.
 
 ## Decisiones de Diseño y Arquitectura
-- **Estrategia Offline-First**: El repositorio (`RoomActividadRepository`) coordina las peticiones remotas (`RemoteActividadDataSource`) con el almacenamiento local (`FormacionDao`). Si la red falla, el caché local permanece intacto.
-- **Separación de Modelos DTO**: Se introduce `ActividadDto` para el transporte de red, manteniéndolo completamente independiente de `ActividadEntity` (Room) y de los modelos puros de dominio.
-- **Mapeadores de Red**: Funciones puras (`toEntity()`, `toDto()`) que aíslan la capa REST de la persistencia y de la interfaz de usuario.
-- **Seguridad de Tokens (`TokenProvider`)**: Inyección dinámica de tokens de sesión mediante `AuthInterceptor` en OkHttp, evitando claves hardcodeadas en texto plano.
-- **Resiliencia ante Errores**: Manejo robusto de excepciones de red (`IOException`, timeouts) con propagación limpia de `CancellationException`.
+- **Persistencia Ligera (`EvidenciaEntity`)**: Se almacena únicamente la URI y los metadatos de la imagen (tipo MIME, tamaño y estado `LOCAL`, `SUBIENDO`, `SINCRONIZADA`, `FALLIDA`), prohibiendo estrictamente el guardado de binarios (Bitmap o Base64) en Room.
+- **Migración de Base de Datos v2 ➔ v3**: Implementación de `MIGRATION_2_3` para agregar la tabla `EvidenciaEntity` de forma segura.
+- **Mínimo Privilegio (Photo Picker)**: Integración de `PickVisualMedia` para seleccionar imágenes de forma nativa sin requerir permisos amplios sobre la galería del usuario.
+- **Captura Segura con `FileProvider`**: Configuración de `FileProvider` con subdirectorios delimitados (`res/xml/file_paths.xml`) generando `content://` URIs seguras en lugar de exponer `file://` URIs.
+- **Permisos Contextuales y Seguridad**: Notificaciones con permiso `POST_NOTIFICATIONS` condicional (Android 13+), desactivación de tráfico en texto claro (`usesCleartextTraffic="false"`) y auditoría de Logcat.
 
 ---
 
@@ -16,7 +16,9 @@ En este incremento de la Guía 8 se integró la comunicación con servicios web 
 
 | Criterio / Elemento | Estado | Observación |
 | :--- | :---: | :--- |
-| **Sincronización Exitosa (CA-01)** | ✅ Cumple | Respuestas HTTP 200 actualizan Room de forma atómica y la UI se refresca reactivamente. |
-| **Listas Vacías Válidas (CA-02)** | ✅ Cumple | Arreglos vacíos devueltos por el servidor se procesan correctamente sin confundirse con errores. |
-| **Resiliencia ante Timeout (CA-03)** | ✅ Cumple | Ante timeouts con datos previos, el caché local permanece intacto. |
-| **Cancelación Cooperativa (CA-08)** | ✅ Cumple | Al salir de la pantalla, las llamadas pendientes se cancelan sin excepciones huérfanas. |
+| **Photo Picker Privado (CA 01)** | ✅ Cumple | Selección de imagen mediante `PickVisualMedia` sin requerir permisos de galería. |
+| **Captura Segura Content URI (CA 03)** | ✅ Cumple | `FileProvider` genera content URIs delimitadas sin exponer file URIs. |
+| **Persistencia de Evidencias (CA 05)** | ✅ Cumple | `EvidenciaEntity` restaura los metadatos y la vista previa al reabrir la app. |
+| **Resiliencia ante Fallos (CA 06)** | ✅ Cumple | Ante errores de subida, la evidencia se conserva en estado `FALLIDA` con opción de reintentar. |
+| **Control de Notificaciones (CA 07)** | ✅ Cumple | Permiso `POST_NOTIFICATIONS` solicitado de forma voluntaria y condicional en Android 13+. |
+| **Tráfico HTTPS Estricto (CA 09)** | ✅ Cumple | Tráfico HTTP en texto plano desactivado (`usesCleartextTraffic="false"`). |
