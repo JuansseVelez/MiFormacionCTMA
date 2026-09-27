@@ -25,7 +25,7 @@ class FormacionApp : Application() {
             FormacionDatabase::class.java,
             "formacion-db"
         )
-        .addMigrations(Migraciones.MIGRATION_1_2)
+        .addMigrations(Migraciones.MIGRATION_1_2, Migraciones.MIGRATION_2_3)
         .build()
 
         remoteDataSource = RemoteActividadDataSource(RetrofitClient.apiService)
