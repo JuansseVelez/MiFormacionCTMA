@@ -1,5 +1,8 @@
 package com.ctma.miformacionctma.ui.screens.crear
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,8 +33,18 @@ fun PantallaCrearActividad(
     var fecha by rememberSaveable { mutableStateOf("") }
     var prioridad by rememberSaveable { mutableStateOf(Prioridad.BAJA) }
     var progreso by rememberSaveable { mutableFloatStateOf(0f) }
+    var evidenciaUri by rememberSaveable { mutableStateOf<String?>(null) }
 
-    // Estados de interacción (para no mostrar errores al inicio)
+    // Launcher para Photo Picker (Mínimo Privilegio)
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            evidenciaUri = uri.toString()
+        }
+    }
+
+    // Estados de interacción
     var tituloTouched by rememberSaveable { mutableStateOf(false) }
     var fechaTouched by rememberSaveable { mutableStateOf(false) }
 
@@ -137,13 +150,54 @@ fun PantallaCrearActividad(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
+
+                    // Sección: Evidencia Fotográfica (Guía 09)
+                    Text("Evidencia Fotográfica", style = MaterialTheme.typography.labelLarge)
+                    Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+
+                    if (evidenciaUri == null) {
+                        OutlinedButton(
+                            onClick = {
+                                photoPickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Adjuntar Evidencia (Photo Picker)")
+                        }
+                    } else {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Column(modifier = Modifier.padding(Dimens.PaddingMedium)) {
+                                Text("URI: $evidenciaUri", style = MaterialTheme.typography.bodySmall)
+                                Text("Estado: LOCAL", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                                Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+                                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                                    TextButton(onClick = {
+                                        photoPickerLauncher.launch(
+                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                        )
+                                    }) {
+                                        Text("Reemplazar")
+                                    }
+                                    TextButton(onClick = { evidenciaUri = null }) {
+                                        Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(Dimens.PaddingExtraLarge))
 
                     // Botón Guardar
                     Button(
                         onClick = {
                             if (!uiState.puedeGuardar) {
-                                // Si intenta guardar pero hay errores, los mostramos todos
                                 tituloTouched = true
                                 fechaTouched = true
                             } else if (!estaGuardando) {
@@ -151,7 +205,6 @@ fun PantallaCrearActividad(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        // Habilitamos siempre el botón pero validamos al hacer clic para dar feedback
                         enabled = !estaGuardando
                     ) {
                         if (estaGuardando) {
