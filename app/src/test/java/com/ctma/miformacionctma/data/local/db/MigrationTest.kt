@@ -13,7 +13,7 @@ import org.robolectric.RobolectricTestRunner
 class MigrationTest {
 
     @Test
-    fun migrate1To3ConservaDatosYAgregaColumnaCompletadaYTablaEvidencia() {
+    fun migrate1To4ConservaDatosYAgregaTodasLasColumnas() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val dbName = "migration-test-db"
         context.deleteDatabase(dbName)
@@ -32,7 +32,7 @@ class MigrationTest {
         v1Db.close()
 
         val roomDb = Room.databaseBuilder(context, FormacionDatabase::class.java, dbName)
-            .addMigrations(Migraciones.MIGRATION_1_2, Migraciones.MIGRATION_2_3)
+            .addMigrations(Migraciones.MIGRATION_1_2, Migraciones.MIGRATION_2_3, Migraciones.MIGRATION_3_4)
             .build()
 
         val db = roomDb.openHelper.writableDatabase
@@ -40,8 +40,11 @@ class MigrationTest {
         assert(cursor.moveToFirst())
         
         val completadaIndex = cursor.getColumnIndex("completada")
+        val estadoEntregaIndex = cursor.getColumnIndex("estadoEntrega")
         assert(completadaIndex != -1)
+        assert(estadoEntregaIndex != -1)
         assert(cursor.getInt(completadaIndex) == 0)
+        assert(cursor.getString(estadoEntregaIndex) == "PENDIENTE")
 
         val cursorEvidencia = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='EvidenciaEntity'")
         assert(cursorEvidencia.moveToFirst())

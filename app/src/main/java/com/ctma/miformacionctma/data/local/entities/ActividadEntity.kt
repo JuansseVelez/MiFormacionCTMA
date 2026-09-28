@@ -25,5 +25,8 @@ data class ActividadEntity(
     val progreso: Int,
     val fechaLimiteMillis: Long,
     val prioridad: String,
-    val completada: Boolean = false // Requisito de la migración de la versión 2
+    val completada: Boolean = false,
+    val estadoEntrega: String = "PENDIENTE",
+    val comentariosInstructor: String? = null,
+    val evidenciaUri: String? = null
 )
