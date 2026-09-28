@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,6 +16,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.ctma.miformacionctma.domain.ActividadFormativa
 import com.ctma.miformacionctma.domain.Prioridad
+import com.ctma.miformacionctma.domain.RolUsuario
+import com.ctma.miformacionctma.domain.Usuario
 import com.ctma.miformacionctma.ui.components.TarjetaActividad
 import com.ctma.miformacionctma.ui.theme.Dimens
 import com.ctma.miformacionctma.ui.theme.MiFormacionCTMATheme
@@ -24,15 +27,35 @@ import com.ctma.miformacionctma.ui.theme.MiFormacionCTMATheme
 fun PantallaActividades(
     actividades: List<ActividadFormativa>,
     sincronizacionState: SincronizacionUiState = SincronizacionUiState(),
+    usuario: Usuario? = null,
     onActividadClick: (Long) -> Unit,
     onAgregarClick: () -> Unit,
     onSincronizar: () -> Unit,
+    onCerrarSesion: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val esInstructor = usuario?.rol == RolUsuario.INSTRUCTOR
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Mi Formación CTMA", fontWeight = FontWeight.Bold) },
+                title = { 
+                    Column {
+                        Text(text = "Mi Formación CTMA", fontWeight = FontWeight.Bold)
+                        usuario?.let {
+                            Text(
+                                text = "${it.nombre} (${it.rol.name})",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onCerrarSesion) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -40,8 +63,11 @@ fun PantallaActividades(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAgregarClick) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar Actividad")
+            // RESTRICCIÓN DE ROL: Solo el Instructor puede crear actividades
+            if (esInstructor) {
+                FloatingActionButton(onClick = onAgregarClick) {
+                    Icon(Icons.Default.Add, contentDescription = "Agregar Actividad")
+                }
             }
         },
         modifier = modifier
@@ -148,9 +174,11 @@ fun PantallaActividadesPreview() {
                 ActividadFormativa(3L, "Guía 3: Jetpack Compose", "Creación de vistas accesibles", 30, 4, Prioridad.ALTA)
             ),
             sincronizacionState = SincronizacionUiState(),
+            usuario = Usuario("1", "Admin Instructor", "instructor@ctma.com", RolUsuario.INSTRUCTOR),
             onActividadClick = {},
             onAgregarClick = {},
-            onSincronizar = {}
+            onSincronizar = {},
+            onCerrarSesion = {}
         )
     }
 }
