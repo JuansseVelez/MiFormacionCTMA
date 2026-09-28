@@ -5,7 +5,7 @@ import okhttp3.Response
 
 class AuthInterceptor(private val tokenProvider: TokenProvider) : Interceptor {
 
-    private val supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock_supabase_anon_key_for_evaluation"
+    private val supabaseKey = "sb_publishable_S0tqJurKhbJDsEE8rKd8Og__aLQxb9Y"
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val requestOriginal = chain.request()
