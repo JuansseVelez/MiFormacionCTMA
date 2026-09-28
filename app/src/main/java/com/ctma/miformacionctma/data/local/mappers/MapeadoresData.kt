@@ -34,6 +34,9 @@ fun ActividadConCompetencia.toDomain(): ActividadFormativa {
         diasRestantes = dias,
         prioridad = prioridadEnum,
         fechaLimite = fechaStr,
+        estadoEntrega = actividad.estadoEntrega,
+        comentariosInstructor = actividad.comentariosInstructor,
+        evidenciaUri = actividad.evidenciaUri
     )
 }
 
@@ -53,6 +56,9 @@ fun ActividadFormativa.toEntity(competenciaId: Long? = null, completada: Boolean
         progreso = progreso,
         fechaLimiteMillis = fechaMillis,
         prioridad = prioridad.name,
-        completada = completada
+        completada = completada,
+        estadoEntrega = estadoEntrega,
+        comentariosInstructor = comentariosInstructor,
+        evidenciaUri = evidenciaUri
     )
 }

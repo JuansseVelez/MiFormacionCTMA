@@ -16,4 +16,12 @@ object Migraciones {
             db.execSQL("CREATE INDEX IF NOT EXISTS `index_EvidenciaEntity_actividadId` ON `EvidenciaEntity` (`actividadId`)")
         }
     }
+
+    val MIGRATION_3_4 = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE ActividadEntity ADD COLUMN estadoEntrega TEXT NOT NULL DEFAULT 'PENDIENTE'")
+            db.execSQL("ALTER TABLE ActividadEntity ADD COLUMN comentariosInstructor TEXT")
+            db.execSQL("ALTER TABLE ActividadEntity ADD COLUMN evidenciaUri TEXT")
+        }
+    }
 }

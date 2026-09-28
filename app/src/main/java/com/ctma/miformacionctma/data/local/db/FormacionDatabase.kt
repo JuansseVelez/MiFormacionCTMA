@@ -9,7 +9,7 @@ import com.ctma.miformacionctma.data.local.entities.EvidenciaEntity
 
 @Database(
     entities = [ActividadEntity::class, CompetenciaEntity::class, EvidenciaEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 abstract class FormacionDatabase : RoomDatabase() {
