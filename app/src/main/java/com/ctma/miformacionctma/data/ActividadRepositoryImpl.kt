@@ -17,6 +17,11 @@ class ActividadRepositoryImpl : ActividadRepository {
     }
 
     override suspend fun agregarActividad(actividad: ActividadFormativa) {
+        actividades.removeAll { it.id == actividad.id }
         actividades.add(actividad)
+    }
+
+    override suspend fun eliminarActividad(actividad: ActividadFormativa) {
+        actividades.removeAll { it.id == actividad.id }
     }
 }

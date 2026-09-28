@@ -6,4 +6,5 @@ interface ActividadRepository {
     fun obtenerActividades(): Flow<List<ActividadFormativa>>
     suspend fun obtenerActividadPorId(id: Long): ActividadFormativa?
     suspend fun agregarActividad(actividad: ActividadFormativa)
+    suspend fun eliminarActividad(actividad: ActividadFormativa)
 }

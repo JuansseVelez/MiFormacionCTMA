@@ -138,6 +138,19 @@ class MainActivity : ComponentActivity() {
 
                         PantallaDetalleActividad(
                             actividad = actividad,
+                            usuario = usuario,
+                            onActualizarActividad = { actActualizada ->
+                                lifecycleScope.launch {
+                                    app.repository.agregarActividad(actActualizada)
+                                    navController.popBackStack()
+                                }
+                            },
+                            onEliminarActividad = { actAEliminar ->
+                                lifecycleScope.launch {
+                                    app.repository.eliminarActividad(actAEliminar)
+                                    navController.popBackStack()
+                                }
+                            },
                             onBack = { navController.popBackStack() }
                         )
                     }

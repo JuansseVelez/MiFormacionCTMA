@@ -10,8 +10,8 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    // URL base de Supabase REST API
-    private const val BASE_URL = "https://proyecto-ctma.supabase.co/rest/v1/"
+    // URL base de Supabase REST API (Real)
+    private const val BASE_URL = "https://yqlsdgixgkihbozitere.supabase.co/rest/v1/"
 
     val tokenProvider = TokenProvider()
 

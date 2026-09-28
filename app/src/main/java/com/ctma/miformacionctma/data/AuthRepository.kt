@@ -13,12 +13,7 @@ class AuthRepository(private val preferenciasRepository: PreferenciasRepository)
                 Pair(RolUsuario.INSTRUCTOR, "Instructor Administrador")
             emailLimpio == "aprendiz@formacion.ctma" && pass == "aprendiz123" -> 
                 Pair(RolUsuario.APRENDIZ, "Aprendiz Usuario")
-            // Permisivo para cuentas creadas por registro local previo
-            emailLimpio.contains("instructor") && pass.length >= 6 -> 
-                Pair(RolUsuario.INSTRUCTOR, "Instructor (Registrado)")
-            emailLimpio.isNotBlank() && pass.length >= 6 -> 
-                Pair(RolUsuario.APRENDIZ, "Aprendiz (Registrado)")
-            else -> return Result.failure(Exception("Credenciales inválidas o contraseña muy corta"))
+            else -> return Result.failure(Exception("Correo o contraseña incorrectos. Cuenta no existe."))
         }
 
         val usuario = Usuario(
@@ -32,8 +27,8 @@ class AuthRepository(private val preferenciasRepository: PreferenciasRepository)
     }
 
     suspend fun registrarse(nombre: String, email: String, pass: String, rol: RolUsuario): Result<Usuario> {
-        if (pass.length < 6) {
-            return Result.failure(Exception("La contraseña debe tener al menos 6 caracteres"))
+        if (email.isBlank() || pass.length < 6) {
+            return Result.failure(Exception("Datos inválidos. Contraseña mínimo de 6 caracteres."))
         }
         val usuario = Usuario(
             id = "user_${System.currentTimeMillis()}",

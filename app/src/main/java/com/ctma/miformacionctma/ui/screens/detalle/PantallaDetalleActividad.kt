@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,6 +32,7 @@ fun PantallaDetalleActividad(
     actividad: ActividadFormativa?,
     usuario: Usuario? = null,
     onActualizarActividad: (ActividadFormativa) -> Unit = {},
+    onEliminarActividad: (ActividadFormativa) -> Unit = {},
     onBack: () -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -56,6 +58,13 @@ fun PantallaDetalleActividad(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                    }
+                },
+                actions = {
+                    if (usuario?.rol == RolUsuario.INSTRUCTOR && actividad != null) {
+                        IconButton(onClick = { onEliminarActividad(actividad) }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Eliminar Actividad", tint = MaterialTheme.colorScheme.error)
+                        }
                     }
                 }
             )
