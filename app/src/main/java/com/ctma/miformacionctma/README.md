@@ -41,9 +41,7 @@ graph TD
 
 | Criterio / Elemento | Estado | Observación / Hallazgo Corregido |
 | :--- | :---: | :--- |
-| **Accesibilidad Semántica** | ✅ Cumple | Implementado `Modifier.semantics` en el progreso para lectura correcta por TalkBack. |
-| **Adaptabilidad (Large Screens)** | ✅ Cumple | Lista con ancho máximo limitado a 600dp para mejor legibilidad en tablets. |
-| **Sistema de Dimensiones** | ✅ Cumple | Centralización de espaciados en `Dimens.kt` eliminando valores hardcoded. |
-| **Estado Vacío Proactivo** | ✅ Cumple | Mensaje de estado vacío incluye acción de "Sincronizar". |
-| **Manejo de Nulos y Textos** | ✅ Cumple | Soporte de nulos y control de desbordamiento (Ellipsis) en textos largos. |
-| **Claves Estables en Listas** | ✅ Cumple | Se asignó `key = { actividad.id }` en `LazyColumn` para optimizar rendimiento. |
+| **Manejo de Nulos** | Corregido | Se corrigió error de compilación en `descripcion` (`String?`) agregando un valor por defecto mediante operador Elvis (`?: "Sin descripción"`). |
+| **Claves Estables en Listas** | Cumple | Se asignó `key = { actividad.id }` en `LazyColumn` para optimizar la recomposición y el rendimiento. |
+| **Jerarquía Visual Material 3** | Cumple | Tipografías centralizadas (`titleMedium`, `bodyMedium`) y contraste adecuado según colores del tema. |
+| **Estado Vacío** | Cumple | La pantalla valida cuando `actividades.isEmpty()` y despliega un mensaje explicativo al usuario. |
