@@ -5,16 +5,12 @@ import com.ctma.miformacionctma.domain.Prioridad
 data class FormularioActividadUiState(
     val titulo: String = "",
     val descripcion: String = "",
+    val fecha: String = "",
     val prioridad: Prioridad = Prioridad.BAJA,
-    val intentoGuardar: Boolean = false
-) {
-    val errorTitulo: String?
-        get() = if (intentoGuardar) ValidadorFormulario.validarTitulo(titulo) else null
-
-    val errorDescripcion: String?
-        get() = if (intentoGuardar) ValidadorFormulario.validarDescripcion(descripcion) else null
-
-    val puedeGuardar: Boolean
-        get() = ValidadorFormulario.validarTitulo(titulo) == null &&
-                ValidadorFormulario.validarDescripcion(descripcion) == null
-}
+    val progreso: Int = 0,
+    val errorTitulo: String? = null,
+    val errorDescripcion: String? = null,
+    val errorFecha: String? = null,
+    val errorProgreso: String? = null,
+    val puedeGuardar: Boolean = false
+)

@@ -1,0 +1,35 @@
+package com.ctma.miformacionctma
+
+import android.app.Application
+import androidx.room.Room
+import com.ctma.miformacionctma.data.PreferenciasRepository
+import com.ctma.miformacionctma.data.RoomActividadRepository
+import com.ctma.miformacionctma.data.local.db.FormacionDatabase
+import com.ctma.miformacionctma.data.local.db.Migraciones
+import com.ctma.miformacionctma.data.remote.RemoteActividadDataSource
+import com.ctma.miformacionctma.data.remote.api.RetrofitClient
+import com.ctma.miformacionctma.domain.ActividadRepository
+
+class FormacionApp : Application() {
+
+    lateinit var database: FormacionDatabase
+    lateinit var repository: ActividadRepository
+    lateinit var preferenciasRepository: PreferenciasRepository
+    lateinit var remoteDataSource: RemoteActividadDataSource
+
+    override fun onCreate() {
+        super.onCreate()
+
+        database = Room.databaseBuilder(
+            this,
+            FormacionDatabase::class.java,
+            "formacion-db"
+        )
+        .addMigrations(Migraciones.MIGRATION_1_2, Migraciones.MIGRATION_2_3)
+        .build()
+
+        remoteDataSource = RemoteActividadDataSource(RetrofitClient.apiService)
+        repository = RoomActividadRepository(database.formacionDao(), remoteDataSource)
+        preferenciasRepository = PreferenciasRepository(this)
+    }
+}

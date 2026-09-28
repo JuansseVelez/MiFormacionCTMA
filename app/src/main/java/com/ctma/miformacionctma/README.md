@@ -10,6 +10,33 @@ En este incremento de la Semana 3 se implementó la interfaz gráfica declarativ
 
 ---
 
+## Arquitectura y Persistencia (Semana 7)
+
+### Inventario de Datos
+| Elemento | Persistencia | Tipo |
+| :--- | :--- | :--- |
+| Actividades | Room (`ActividadEntity`) | Persistente (Observable Flow) |
+| Competencias | Room (`CompetenciaEntity`) | Persistente |
+| Filtro de Prioridad | DataStore | Persistente |
+| Estado Formulario | `mutableStateOf` | Efímero |
+
+### Diagrama de Arquitectura
+```mermaid
+graph TD
+    UI[Jetpack Compose UI] --> VM[ViewModels: Actividades, Formulario]
+    VM --> REP[Repositories: RoomActividad, Preferencias]
+    REP --> DB[(Room Database)]
+    REP --> DS[(Preferences DataStore)]
+    FormApp[FormacionApp: DI Container] --> VM
+    FormApp --> REP
+```
+
+### Decisiones Técnicas
+- **ViewModel-Repository**: Se migró la lógica de `MainActivity` a ViewModels para mejorar la testabilidad y sobrevivir a cambios de configuración.
+- **Singleton Manual**: Se utiliza `FormacionApp` como contenedor de dependencias simple para asegurar una única instancia de la base de datos.
+- **Migraciones Controladas**: Se implementó una migración manual de v1 a v2 para añadir el campo `completada` sin pérdida de datos.
+- **Pruebas Instrumentadas**: Se añadieron tests de integración para el DAO y validación de migración de esquema.
+
 ## Checklist de UX / Accesibilidad
 
 | Criterio / Elemento | Estado | Observación / Hallazgo Corregido |

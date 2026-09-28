@@ -12,5 +12,6 @@ data class ActividadFormativa(
     val descripcion: String? = null,
     val progreso: Int = 0,
     val diasRestantes: Int = 0,
-    val prioridad: Prioridad = Prioridad.BAJA
+    val prioridad: Prioridad = Prioridad.BAJA,
+    val fechaLimite: String? = null
 )

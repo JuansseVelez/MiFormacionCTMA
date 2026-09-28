@@ -1,191 +1,282 @@
 package com.ctma.miformacionctma.ui.screens.crear
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ctma.miformacionctma.domain.Prioridad
+import com.ctma.miformacionctma.ui.theme.Dimens
+import com.ctma.miformacionctma.ui.theme.MiFormacionCTMATheme
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaCrearActividad(
-    onBackClick: () -> Unit,
-    onGuardarExitoso: (String, String, Prioridad) -> Unit,
-    modifier: Modifier = Modifier
+    estaGuardando: Boolean,
+    onBack: () -> Unit,
+    onGuardar: (titulo: String, desc: String, fecha: String, prioridad: Prioridad, progreso: Int) -> Unit,
 ) {
     var titulo by rememberSaveable { mutableStateOf("") }
     var descripcion by rememberSaveable { mutableStateOf("") }
+    var fecha by rememberSaveable { mutableStateOf("") }
     var prioridad by rememberSaveable { mutableStateOf(Prioridad.BAJA) }
-    var intentoGuardar by rememberSaveable { mutableStateOf(false) }
-    var estaGuardando by remember { mutableStateOf(false) }
+    var progreso by rememberSaveable { mutableFloatStateOf(0f) }
+    var evidenciaUri by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val uiState = FormularioActividadUiState(
-        titulo = titulo,
-        descripcion = descripcion,
-        prioridad = prioridad,
-        intentoGuardar = intentoGuardar
-    )
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            evidenciaUri = uri.toString()
+        }
+    }
+
+    var tituloTouched by rememberSaveable { mutableStateOf(false) }
+    var fechaTouched by rememberSaveable { mutableStateOf(false) }
+
+    val uiState = remember(titulo, descripcion, fecha, prioridad, progreso) {
+        validarFormulario(titulo, descripcion, fecha, prioridad, progreso.toInt())
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nueva Actividad", fontWeight = FontWeight.Bold) },
+                title = { Text("Nueva Actividad") },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Regresar")
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                }
             )
-        },
-        modifier = modifier
-    ) { innerPadding ->
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(padding)
+                .padding(Dimens.PaddingLarge)
+                .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = "Registrar Compromiso",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                Column(modifier = Modifier.widthIn(max = Dimens.MaxContentWidth)) {
+                    OutlinedTextField(
+                        value = titulo,
+                        onValueChange = { 
+                            titulo = it
+                            tituloTouched = true
+                        },
+                        label = { Text("Título *") },
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = (tituloTouched && uiState.errorTitulo != null),
+                        supportingText = { 
+                            if (tituloTouched) {
+                                uiState.errorTitulo?.let { Text(it) }
+                            }
+                        }
+                    )
 
-            OutlinedTextField(
-                value = titulo,
-                onValueChange = { titulo = it },
-                label = { Text("Título de la actividad") },
-                placeholder = { Text("Ej: Guía 4: Navegación") },
-                modifier = Modifier.fillMaxWidth(),
-                isError = uiState.errorTitulo != null,
-                supportingText = {
-                    if (uiState.errorTitulo != null) {
-                        Text(text = uiState.errorTitulo!!, color = MaterialTheme.colorScheme.error)
-                    } else {
-                        Text("${titulo.length}/80 caracteres")
-                    }
-                },
-                singleLine = true
-            )
+                    Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
-            OutlinedTextField(
-                value = descripcion,
-                onValueChange = { descripcion = it },
-                label = { Text("Descripción (Opcional)") },
-                placeholder = { Text("Breve detalle del compromiso...") },
-                modifier = Modifier.fillMaxWidth(),
-                isError = uiState.errorDescripcion != null,
-                supportingText = {
-                    if (uiState.errorDescripcion != null) {
-                        Text(text = uiState.errorDescripcion!!, color = MaterialTheme.colorScheme.error)
-                    } else {
-                        Text("${descripcion.length}/240 caracteres")
-                    }
-                },
-                minLines = 3
-            )
+                    OutlinedTextField(
+                        value = descripcion,
+                        onValueChange = { descripcion = it },
+                        label = { Text("Descripción (Opcional)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = uiState.errorDescripcion != null,
+                        supportingText = { uiState.errorDescripcion?.let { Text(it) } }
+                    )
 
-            Text(
-                text = "Prioridad",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+                    Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
-            Column(Modifier.selectableGroup()) {
-                Prioridad.values().forEach { nivel ->
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(48.dp)
-                            .selectable(
-                                selected = (prioridad == nivel),
-                                onClick = { prioridad = nivel },
-                                role = Role.RadioButton
-                            )
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = (prioridad == nivel),
-                            onClick = null
-                        )
-                        Text(
-                            text = nivel.name,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 16.dp)
-                        )
-                    }
-                }
-            }
+                    OutlinedTextField(
+                        value = fecha,
+                        onValueChange = { 
+                            fecha = it
+                            fechaTouched = true
+                        },
+                        label = { Text("Fecha Límite (AAAA-MM-DD) *") },
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = fechaTouched && uiState.errorFecha != null,
+                        supportingText = { 
+                            if (fechaTouched) {
+                                uiState.errorFecha?.let { Text(it) } ?: Text("Formato: AAAA-MM-DD")
+                            } else {
+                                Text("Formato: AAAA-MM-DD")
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
-            Button(
-                onClick = {
-                    if (!estaGuardando) {
-                        intentoGuardar = true
-                        if (ValidadorFormulario.validarTitulo(titulo) == null &&
-                            ValidadorFormulario.validarDescripcion(descripcion) == null
-                        ) {
-                            estaGuardando = true
-                            onGuardarExitoso(titulo, descripcion, prioridad)
+                    Text("Prioridad", style = MaterialTheme.typography.labelLarge)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Prioridad.entries.forEach { p ->
+                            RadioButton(selected = prioridad == p, onClick = { prioridad = p })
+                            Text(p.name, modifier = Modifier.padding(end = Dimens.PaddingMedium))
                         }
                     }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !estaGuardando
-            ) {
-                if (estaGuardando) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
+
+                    Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
+
+                    Text(
+                        text = "Progreso: ${progreso.toInt()}%",
+                        style = MaterialTheme.typography.labelLarge
                     )
-                } else {
-                    Text("Guardar Actividad")
+                    Slider(
+                        value = progreso,
+                        onValueChange = { progreso = it },
+                        valueRange = 0f..100f,
+                        steps = 100,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
+
+                    Text("Evidencia Fotográfica", style = MaterialTheme.typography.labelLarge)
+                    Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+
+                    if (evidenciaUri == null) {
+                        OutlinedButton(
+                            onClick = {
+                                photoPickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Adjuntar Evidencia (Photo Picker)")
+                        }
+                    } else {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Column(modifier = Modifier.padding(Dimens.PaddingMedium)) {
+                                Text("URI: $evidenciaUri", style = MaterialTheme.typography.bodySmall)
+                                Text("Estado: LOCAL", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                                Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
+                                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                                    TextButton(onClick = {
+                                        photoPickerLauncher.launch(
+                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                        )
+                                    }) {
+                                        Text("Reemplazar")
+                                    }
+                                    TextButton(onClick = { evidenciaUri = null }) {
+                                        Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(Dimens.PaddingExtraLarge))
+
+                    Button(
+                        onClick = {
+                            if (!uiState.puedeGuardar) {
+                                tituloTouched = true
+                                fechaTouched = true
+                            } else if (!estaGuardando) {
+                                onGuardar(titulo, descripcion, fecha, prioridad, progreso.toInt())
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !estaGuardando
+                    ) {
+                        if (estaGuardando) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Guardar Actividad")
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+private fun validarFormulario(
+    titulo: String,
+    descripcion: String,
+    fecha: String,
+    prioridad: Prioridad,
+    progreso: Int
+): FormularioActividadUiState {
+    val errorTitulo = when {
+        titulo.isBlank() -> "El título es obligatorio"
+        titulo.length < 3 -> "Mínimo 3 caracteres"
+        titulo.length > 80 -> "Máximo 80 caracteres"
+        else -> null
+    }
+
+    val errorDescripcion = if (descripcion.length > 240) "Máximo 240 caracteres" else null
+
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply { isLenient = false }
+    val errorFecha = try {
+        val parsedDate = sdf.parse(fecha)
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.time
+        
+        if (parsedDate != null && parsedDate.before(today)) {
+            "La fecha no puede ser anterior a hoy"
+        } else null
+    } catch (_: Exception) {
+        if (fecha.isNotBlank()) "Formato inválido (AAAA-MM-DD)" else "La fecha es obligatoria"
+    }
+
+    val errorProgreso = if (progreso !in 0..100) "Rango: 0-100" else null
+
+    val puedeGuardar = errorTitulo == null && errorFecha == null && 
+                       errorDescripcion == null && errorProgreso == null &&
+                       titulo.isNotBlank() && fecha.isNotBlank()
+
+    return FormularioActividadUiState(
+        titulo = titulo,
+        descripcion = descripcion,
+        fecha = fecha,
+        prioridad = prioridad,
+        progreso = progreso,
+        errorTitulo = errorTitulo,
+        errorDescripcion = errorDescripcion,
+        errorFecha = errorFecha,
+        errorProgreso = errorProgreso,
+        puedeGuardar = puedeGuardar
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PantallaCrearActividadPreview() {
+    MiFormacionCTMATheme {
+        PantallaCrearActividad(
+            estaGuardando = false,
+            onBack = {},
+            onGuardar = { _, _, _, _, _ -> }
+        )
     }
 }
