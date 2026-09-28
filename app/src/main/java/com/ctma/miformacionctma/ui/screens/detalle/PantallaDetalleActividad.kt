@@ -7,8 +7,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import com.ctma.miformacionctma.domain.ActividadFormativa
+import com.ctma.miformacionctma.domain.Prioridad
 import com.ctma.miformacionctma.ui.theme.Dimens
+import com.ctma.miformacionctma.ui.theme.MiFormacionCTMATheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,5 +87,24 @@ fun PantallaDetalleActividad(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PantallaDetalleActividadPreview() {
+    MiFormacionCTMATheme {
+        PantallaDetalleActividad(
+            actividad = ActividadFormativa(
+                id = 1L,
+                titulo = "Taller 1: Kotlin y Compose",
+                descripcion = "Ejemplo de vista previa en detalle de actividad.",
+                progreso = 75,
+                diasRestantes = 3,
+                prioridad = Prioridad.ALTA,
+                fechaLimite = "2026-10-30"
+            ),
+            onBack = {}
+        )
     }
 }

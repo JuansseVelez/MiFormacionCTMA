@@ -15,9 +15,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ctma.miformacionctma.domain.Prioridad
 import com.ctma.miformacionctma.ui.theme.Dimens
+import com.ctma.miformacionctma.ui.theme.MiFormacionCTMATheme
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,7 +37,6 @@ fun PantallaCrearActividad(
     var progreso by rememberSaveable { mutableFloatStateOf(0f) }
     var evidenciaUri by rememberSaveable { mutableStateOf<String?>(null) }
 
-    // Launcher para Photo Picker (Mínimo Privilegio)
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -44,7 +45,6 @@ fun PantallaCrearActividad(
         }
     }
 
-    // Estados de interacción
     var tituloTouched by rememberSaveable { mutableStateOf(false) }
     var fechaTouched by rememberSaveable { mutableStateOf(false) }
 
@@ -73,7 +73,6 @@ fun PantallaCrearActividad(
         ) {
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                 Column(modifier = Modifier.widthIn(max = Dimens.MaxContentWidth)) {
-                    // Campo: Título
                     OutlinedTextField(
                         value = titulo,
                         onValueChange = { 
@@ -92,7 +91,6 @@ fun PantallaCrearActividad(
 
                     Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
-                    // Campo: Descripción
                     OutlinedTextField(
                         value = descripcion,
                         onValueChange = { descripcion = it },
@@ -104,7 +102,6 @@ fun PantallaCrearActividad(
 
                     Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
-                    // Campo: Fecha
                     OutlinedTextField(
                         value = fecha,
                         onValueChange = { 
@@ -126,7 +123,6 @@ fun PantallaCrearActividad(
 
                     Spacer(modifier = Modifier.height(Dimens.PaddingMedium))
 
-                    // Selección de Prioridad
                     Text("Prioridad", style = MaterialTheme.typography.labelLarge)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Prioridad.entries.forEach { p ->
@@ -137,7 +133,6 @@ fun PantallaCrearActividad(
 
                     Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
 
-                    // Campo: Progreso (Slider Interactivo)
                     Text(
                         text = "Progreso: ${progreso.toInt()}%",
                         style = MaterialTheme.typography.labelLarge
@@ -152,7 +147,6 @@ fun PantallaCrearActividad(
 
                     Spacer(modifier = Modifier.height(Dimens.PaddingLarge))
 
-                    // Sección: Evidencia Fotográfica (Guía 09)
                     Text("Evidencia Fotográfica", style = MaterialTheme.typography.labelLarge)
                     Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
 
@@ -194,7 +188,6 @@ fun PantallaCrearActividad(
 
                     Spacer(modifier = Modifier.height(Dimens.PaddingExtraLarge))
 
-                    // Botón Guardar
                     Button(
                         onClick = {
                             if (!uiState.puedeGuardar) {
@@ -274,4 +267,16 @@ private fun validarFormulario(
         errorProgreso = errorProgreso,
         puedeGuardar = puedeGuardar
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PantallaCrearActividadPreview() {
+    MiFormacionCTMATheme {
+        PantallaCrearActividad(
+            estaGuardando = false,
+            onBack = {},
+            onGuardar = { _, _, _, _, _ -> }
+        )
+    }
 }

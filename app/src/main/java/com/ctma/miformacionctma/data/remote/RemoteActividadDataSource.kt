@@ -4,6 +4,7 @@ import com.ctma.miformacionctma.data.remote.api.ActividadApiService
 import com.ctma.miformacionctma.data.remote.dto.ActividadDto
 import kotlinx.coroutines.CancellationException
 import java.io.IOException
+import java.net.UnknownHostException
 
 class RemoteActividadDataSource(private val apiService: ActividadApiService) {
 
@@ -17,8 +18,10 @@ class RemoteActividadDataSource(private val apiService: ActividadApiService) {
             }
         } catch (e: CancellationException) {
             throw e
-        } catch (e: IOException) {
-            Result.failure(e)
+        } catch (_: UnknownHostException) {
+            Result.failure(Exception("Servidor remoto no disponible"))
+        } catch (_: IOException) {
+            Result.failure(Exception("Error de conexión a la red"))
         } catch (e: Exception) {
             Result.failure(e)
         }

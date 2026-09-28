@@ -71,7 +71,8 @@ fun PantallaActividades(
                     Text(
                         text = "Resumen de Compromisos",
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f, fill = false)
                     )
                     TextButton(onClick = onSincronizar, enabled = !sincronizacionState.estaSincronizando) {
                         Text(if (sincronizacionState.estaSincronizando) "Sincronizando..." else "Actualizar")
