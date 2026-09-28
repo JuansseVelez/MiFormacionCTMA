@@ -29,6 +29,10 @@ class RoomActividadRepository(
         dao.insertarActividad(actividad.toEntity())
     }
 
+    override suspend fun eliminarActividad(actividad: ActividadFormativa) {
+        dao.eliminarActividad(actividad.toEntity())
+    }
+
     suspend fun sincronizarConServidor(): Result<Unit> {
         val dataSource = remoteDataSource ?: return Result.success(Unit)
         return try {
